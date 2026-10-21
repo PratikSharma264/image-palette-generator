@@ -17,7 +17,7 @@ async def home():
 
 
 @app.post("/analyze")
-async def analyze_image(file: UploadFile):
+async def analyze_image(file: UploadFile, colors: int = 5):
     if file.content_type not in {"image/jpeg", "image/png"}:
         raise HTTPException(
             status_code=400,
@@ -35,8 +35,9 @@ async def analyze_image(file: UploadFile):
             detail="The uploaded file could not be read as an image.",
         ) from error
     
+    requested_colors = max(2, min(colors, 10))
     unique_color_count = len({tuple(pixel) for pixel in pixels})
-    cluster_count = min(5, unique_color_count)
+    cluster_count = min(requested_colors, unique_color_count)
 
     model = KMeans(
         n_clusters=cluster_count,
@@ -51,11 +52,11 @@ async def analyze_image(file: UploadFile):
         reverse=True,
     )
 
-    colors = []
+    palette = []
     for label in ordered_labels:
         center = model.cluster_centers_[label]
         red, green, blue = (int(round(value)) for value in center)
-        colors.append(
+        palette.append(
             {
                 "hex": f"#{red:02X}{green:02X}{blue:02X}",
                 "rgb": [red, green, blue],
@@ -63,5 +64,5 @@ async def analyze_image(file: UploadFile):
             }
         )
 
-    return {"filename": file.filename, "colors": colors}
+    return {"filename": file.filename, "colors": palette}
     
