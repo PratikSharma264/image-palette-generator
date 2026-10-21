@@ -1,8 +1,19 @@
+from collections import Counter
+from pathlib import Path
+
 import numpy as np
 from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import Image
+from sklearn.cluster import KMeans
 
 app = FastAPI(title="AI Image Palette Generator")
+INDEX_FILE = Path(__file__).with_name("index.html")
+
+
+@app.get("/")
+async def home():
+    return FileResponse(INDEX_FILE)
 
 
 @app.post("/analyze")
@@ -12,3 +23,45 @@ async def analyze_image(file: UploadFile):
             status_code=400,
             detail="Upload a PNG or JPEG image.",
         )
+
+    try:
+        with Image.open(file.file) as image:
+            image = image.convert("RGB")
+            image.thumbnail((200, 200))
+            pixels = np.asarray(image).reshape(-1, 3)
+    except OSError as error:
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file could not be read as an image.",
+        ) from error
+    
+    unique_color_count = len({tuple(pixel) for pixel in pixels})
+    cluster_count = min(5, unique_color_count)
+
+    model = KMeans(
+        n_clusters=cluster_count,
+        n_init="auto",
+        random_state=42,
+    )
+    labels = model.fit_predict(pixels)
+    label_counts = Counter(int(label) for label in labels)
+    ordered_labels = sorted(
+        label_counts,
+        key=lambda label: label_counts[label],
+        reverse=True,
+    )
+
+    colors = []
+    for label in ordered_labels:
+        center = model.cluster_centers_[label]
+        red, green, blue = (int(round(value)) for value in center)
+        colors.append(
+            {
+                "hex": f"#{red:02X}{green:02X}{blue:02X}",
+                "rgb": [red, green, blue],
+                "percentage": round(label_counts[label] / len(labels) * 100, 1),
+            }
+        )
+
+    return {"filename": file.filename, "colors": colors}
+    
