@@ -5,98 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Image Palette Generator</title>
   <style>
-    :root {
-      color-scheme: light;
-      font-family: Inter, system-ui, sans-serif;
-      background: #eef2ff;
-      color: #172033;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      padding: 32px 16px;
-      background: linear-gradient(135deg, #eef2ff, #fdf2f8);
-    }
-
-    main {
-      width: min(920px, 100%);
-      margin: 0 auto;
-      padding: 28px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 20px 60px rgba(41, 49, 87, 0.16);
-    }
-
-    h1 { margin-top: 0; }
-
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: end;
-      margin: 24px 0;
-    }
-
-    input, button { font: inherit; }
-
-    label {
-      display: grid;
-      gap: 6px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 11px 18px;
-      background: #4f46e5;
-      color: white;
-      cursor: pointer;
-    }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 24px;
-      align-items: start;
-    }
-
-    #preview {
+        /* Custom Slider Track Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
-      max-height: 420px;
-      object-fit: contain;
-      border-radius: 18px;
-      background: #f3f4f6;
+      height: 8px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      outline: none;
     }
 
-    #palette {
-      display: grid;
-      gap: 12px;
+    /* Custom Slider Thumb (Chrome, Edge, Safari) */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      transition: background 0.15s ease;
     }
 
-    .swatch {
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      background: white;
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #4338ca;
     }
 
-    .color-chip { height: 82px; }
-
-    .color-info {
-      margin: 0;
-      padding: 10px 12px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 0.88rem;
+    /* Custom Slider Thumb (Firefox) */
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      transition: background 0.15s ease;
     }
 
-    #status { min-height: 24px; }
-
-    @media (max-width: 680px) {
-      .workspace { grid-template-columns: 1fr; }
-      main { padding: 20px; }
+    input[type="range"]::-moz-range-thumb:hover {
+      background: #4338ca;
     }
   </style>
 </head>
